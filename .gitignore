@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+data/seats/*.jsonl
+data/eval/*.jsonl
+results/*.jsonl
+models/
+*.safetensors
