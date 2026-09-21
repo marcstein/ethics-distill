@@ -133,6 +133,34 @@ Notes:
 
 ---
 
+### G2-9
+*commerce · harm to third parties · contested · stakes grave · Netherlands · pair evidence (A)*
+
+Rutger de Groot runs a mid-sized construction firm in Rotterdam that installs prefabricated balconies on apartment towers. A structural engineer flags that eleven balconies installed three years ago, using a batch of steel brackets from a now-defunct supplier, show slightly more corrosion than expected for their age. The engineer recommends a full inspection of all 340 balconies from that era, costing 190,000 euros and requiring residents to vacate their balconies for six weeks. Rutger commissions an independent metallurgical study. The study finds the corrosion pattern matches a labeling error: the "affected" brackets were actually a later, better-treated batch, and the original batch performs within spec. Load tests on ten sampled brackets from the true original batch show no measurable weakness. Rutger's board notes the study cost 40,000 euros and closes the file, ready to move on without notifying residents or ordering further checks.
+
+**Should Rutger de Groot close the file without notifying residents or ordering further checks?**
+
+Verdict on the case: keep / fix / reject  
+Difficulty label right? y/n  
+Notes:
+
+
+---
+
+### G2-10
+*commerce · harm to third parties · contested · stakes grave · Netherlands · pair evidence (B)*
+
+Rutger de Groot runs a mid-sized construction firm in Rotterdam that installs prefabricated balconies on apartment towers. A structural engineer flags that eleven balconies installed three years ago, using a batch of steel brackets from a now-defunct supplier, show slightly more corrosion than expected for their age. The engineer recommends a full inspection of all 340 balconies from that era, costing 190,000 euros and requiring residents to vacate their balconies for six weeks. Rutger commissions an independent metallurgical study. The study confirms the brackets from that batch were improperly galvanized and are corroding faster than spec allows. Load tests on ten sampled brackets show measurable strength loss, with two failing well below the safety margin. Rutger's board notes the study cost 40,000 euros and that a recall would draw negative press and strain cash flow, and considers closing the file without notifying residents or ordering further checks.
+
+**Should Rutger de Groot close the file without notifying residents or ordering further checks?**
+
+Verdict on the case: keep / fix / reject  
+Difficulty label right? y/n  
+Notes:
+
+
+---
+
 ### G2-11
 *education · fairness of distribution · contested · stakes serious · India*
 

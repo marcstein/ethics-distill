@@ -74,7 +74,7 @@ def write(out):
     byid = {r["id"]: r for r in rows}
     def run(c):
         try:
-            m = C.message("generate", {"model": MODEL, "max_tokens": 1400, "system": SYS, "messages": [{"role": "user", "content": cell_prompt(c)}]})
+            m = C.message("generate", {"model": MODEL, "max_tokens": 1400, "thinking": {"type": "disabled"}, "system": SYS, "messages": [{"role": "user", "content": cell_prompt(c)}]})
         except Exception as e: return c["id"], None, str(e)
         return c["id"], C.text_of(m).strip(), None
     with ThreadPoolExecutor(16) as ex: res = list(ex.map(run, todo))
