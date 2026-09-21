@@ -28,18 +28,27 @@ AGENTS = {"self": "an individual acting on their own behalf", "role": "an indivi
 STAKES = {"minor": "money, convenience, embarrassment", "serious": "livelihood, liberty, lasting harm to one or a few people", "grave": "life, permanent injury, or many people"}
 DIFF = {"easy": "a case with a clear answer that most reasonable people and most ethical frameworks would share; the temptation is real but the right course is not in doubt",
  "contested": "a case where thoughtful people applying different ethical frameworks would reach different answers", "open": "a case where the stated facts genuinely underdetermine the answer, and what one would need to know is itself the point"}
-SETTINGS = [("United States", "dollars"), ("United Kingdom", "pounds"), ("Canada", "dollars"), ("Australia", "dollars"), ("Ireland", "euros"), ("Germany", "euros"), ("France", "euros"),
- ("Netherlands", "euros"), ("Spain", "euros"), ("Italy", "euros"), ("Poland", "zloty"), ("Sweden", "kronor"), ("Japan", "yen"), ("South Korea", "won"), ("India", "rupees"),
- ("Singapore", "dollars"), ("Brazil", "reais"), ("Mexico", "pesos"), ("South Africa", "rand"), ("Kenya", "shillings"), ("Nigeria", "naira"), ("Turkey", "lira"), ("Israel", "shekels"), ("New Zealand", "dollars")]
+# (country, currency, weight). Users are mostly in the US; the rest keeps the student from learning that dilemmas are American.
+SETTINGS_W = [("United States", "dollars", 50), ("United Kingdom", "pounds", 8), ("Canada", "dollars", 6), ("Australia", "dollars", 4), ("Ireland", "euros", 2),
+ ("Germany", "euros", 3), ("France", "euros", 3), ("Netherlands", "euros", 2), ("Spain", "euros", 2), ("Italy", "euros", 2), ("Sweden", "kronor", 1), ("Poland", "zloty", 1),
+ ("Japan", "yen", 3), ("South Korea", "won", 2), ("India", "rupees", 3), ("Singapore", "dollars", 1), ("Brazil", "reais", 2), ("Mexico", "pesos", 2),
+ ("South Africa", "rand", 1), ("Kenya", "shillings", 1), ("Nigeria", "naira", 1), ("Israel", "shekels", 1), ("New Zealand", "dollars", 1)]
+SETTINGS = [(c, cur) for c, cur, w in SETTINGS_W]
+def setting_schedule(n, rng):
+    """Stratified: exact quotas by weight, shuffled, so coverage does not depend on the dice."""
+    tot = sum(w for _, _, w in SETTINGS_W); sched = []
+    for c, cur, w in SETTINGS_W: sched += [(c, cur)] * round(n * w / tot)
+    while len(sched) < n: sched.append(("United States", "dollars"))
+    rng.shuffle(sched); return sched[:n]
 
 def plan(n, seed, domains):
-    rng = random.Random(seed); rows = []
+    rng = random.Random(seed); rows = []; sched = setting_schedule(n + 8, rng)
     dl = list(domains); cl = list(CONFLICTS); al = list(AGENTS); sl = list(STAKES)
     diffs = ["easy"] * 40 + ["contested"] * 45 + ["open"] * 15
     i = 0
     while len(rows) < n:
         cell = {"domain": dl[i % len(dl)], "conflict": cl[(i * 7 + rng.randrange(3)) % len(cl)], "agent": rng.choice(al), "stakes": rng.choice(sl),
-                "difficulty": rng.choice(diffs), "setting": rng.choice(SETTINGS), "gender": rng.choice(["a woman", "a man", "a woman", "a man", "a person"]), "seed": rng.randrange(10**9)}
+                "difficulty": rng.choice(diffs), "setting": sched[len(rows) % len(sched)], "gender": rng.choice(["a woman", "a man", "a woman", "a man", "a person"]), "seed": rng.randrange(10**9)}
         # pairs by quota: every fourth non-easy cell becomes a pair (about 30% of cases)
         if cell["difficulty"] != "easy" and (i % 4 == 0):
             cell["pair_type"] = rng.choice(["relevant", "relevant", "irrelevant", "evidence"]); cell["pair_id"] = f"P{seed}-{len(rows)}"
