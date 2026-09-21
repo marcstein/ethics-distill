@@ -26,7 +26,7 @@ CONFLICTS = {
 AGENTS = {"self": "an individual acting on their own behalf", "role": "an individual acting in a professional or institutional role",
  "small_org": "a small organization deciding as a body", "large_org": "a large organization or company", "public": "a public body or official"}
 STAKES = {"minor": "money, convenience, embarrassment", "serious": "livelihood, liberty, lasting harm to one or a few people", "grave": "life, permanent injury, or many people"}
-DIFF = {"easy": "a case with a clear answer that most reasonable people and most ethical frameworks would share; the temptation is real but the right course is not in doubt",
+DIFF = {"easy": "a case with a clear answer. The decision-maker is tempted, and the temptation should be understandable (money, loyalty, fatigue, fear, convenience), but a thoughtful person from any ethical tradition would say the right course is obvious and would say the same thing. Do not balance the considerations; let the wrong option be recognizably wrong",
  "contested": "a case where thoughtful people applying different ethical frameworks would reach different answers", "open": "a case where the stated facts genuinely underdetermine the answer, and what one would need to know is itself the point"}
 # (country, currency, weight). Users are mostly in the US; the rest keeps the student from learning that dilemmas are American.
 SETTINGS_W = [("United States", "dollars", 50), ("United Kingdom", "pounds", 8), ("Canada", "dollars", 6), ("Australia", "dollars", 4), ("Ireland", "euros", 2),
@@ -69,6 +69,8 @@ Rules:
 def cell_prompt(c):
     p = [f"Domain: {DOMAIN_DESC[c['domain']]}.", f"Central tension: {CONFLICTS[c['conflict']]}.", f"Decision-maker: {AGENTS[c['agent']]}; where a person, {c['gender']}.",
          f"Stakes: {STAKES[c['stakes']]}.", f"Kind of case: {DIFF[c['difficulty']]}.", f"Setting: {c['setting'][0]}; money in {c['setting'][1]}."]
+    if c["domain"] not in HELDOUT_DOMAINS:
+        p.append("Do not set the case in medicine, healthcare, clinical research or drug development, and do not make the decision-maker a clinician or a biomedical researcher; those settings are reserved.")
     if c.get("pair_type") == "relevant":
         p.append("This case is one of a pair. Write TWO versions, labeled A and B, identical except for ONE morally relevant fact (a consent given or not given, a harm certain or merely possible, a duty owed or not owed, a person culpable or blameless). The change should plausibly move a thoughtful person's answer. Everything else, including names and wording, stays the same. Same question for both.")
     elif c.get("pair_type") == "irrelevant":
@@ -114,6 +116,7 @@ def check(out):
         w = len(r["text"].split()); probs = []
         if not (70 <= w <= 175): probs.append(f"length {w}")
         if not r["question"].startswith("Should"): probs.append("no question")
+        if r["domain"] not in HELDOUT_DOMAINS and re.search(r"\b(physician|surgeon|nurse|attending|hospital|clinical trial|patient)\b", r["text"][:300], re.I): probs.append("clinical setting in train domain")
         if re.search(r"\b(utilitarian|deontolog|categorical imperative|virtue ethics|Kant|Mill|Aristotle|Rawls|Hegel|Spinoza|Aquinas)\b", r["text"], re.I): probs.append("philosophy vocabulary")
         if probs: r["check"] = probs; bad += 1
         else: r.pop("check", None)

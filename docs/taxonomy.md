@@ -84,3 +84,13 @@ can be built by swapping settings.
 - 50 contrast pairs of all three kinds (100 cases).
 - Gold labels from Opus 5 on all seven seats.
 - Marc hand-reads 30, sampled across cells, before the set is frozen.
+
+## Difficulty: intended vs observed (decision 2026-09-22)
+
+The generator is given a difficulty target, and the 40/45/15 quota applies to that target. But the
+label that goes into the dataset is *observed*: computed from the seven seat positions once the
+panel has run (easy = all seats agree in sign with |position| >= 1; contested = a sign split;
+open = two or more seats at 0, or the majority conditional). A cheap classifier was tried and
+over-called "contested" whenever a temptation was present, which is most cases by construction.
+Held-out protection: train-domain cases may not be set in medicine or biomedical research, and the
+check step flags any that are.
