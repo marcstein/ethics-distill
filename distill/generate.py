@@ -74,13 +74,13 @@ def cell_prompt(c):
     if c.get("pair_type") == "relevant":
         p.append("This case is one of a pair. Write TWO versions, labeled A and B, identical except for ONE morally relevant fact (a consent given or not given, a harm certain or merely possible, a duty owed or not owed, a person culpable or blameless). The change should plausibly move a thoughtful person's answer. Everything else, including names and wording, stays the same. Same question for both.")
     elif c.get("pair_type") == "irrelevant":
-        p.append("This case is one of a pair. Write TWO versions, labeled A and B, identical in every fact that could matter morally, differing only in names, gender, city, currency and sector or profession (if the profession changes, keep the role's duties the same). Same question, reworded to match. A careful reader should give the same answer to both.")
+        p.append("This case is one of a pair. Write TWO versions, labeled A and B, that are the SAME situation with the SAME profession, the same institution type, the same rule, the same history and the same amounts, differing ONLY in the people's names, their genders, the city or country, the currency, and incidental wording. Do not change what anyone did, what is at stake, or what the decision-maker's role requires. Same question, reworded only to match the names.")
     elif c.get("pair_type") == "evidence":
         p.append("This case is one of a pair. Write TWO versions, labeled A and B, identical except for what the evidence shows: in A, a fact the decision-maker relies on turns out, on investigation, to be explained away (a correlation that vanishes under control, a report that was mistaken, a risk that measurement shows to be negligible); in B, investigation confirms it. State the evidence plainly in each. Same question for both.")
     return "\n".join(p) + ("\n\nFormat: 'A:' then the case, blank line, 'B:' then the case." if c.get("pair_type") else "")
 
-def write(out):
-    rows = C.jsonl_read(out); todo = [r for r in rows if ("text" not in r or r.get("check")) and r.get("twin", "A") == "A"]
+def write(out, limit=140):
+    rows = C.jsonl_read(out); todo = [r for r in rows if ("text" not in r or r.get("check")) and r.get("twin", "A") == "A"][:limit]
     planned = len(todo) * (900 * 2 + 600 * 10) / 1e6; C.check_cap(planned)
     byid = {r["id"]: r for r in rows}
     def run(c):
@@ -88,7 +88,7 @@ def write(out):
             m = C.message("generate", {"model": MODEL, "max_tokens": 1400, "thinking": {"type": "disabled"}, "system": SYS, "messages": [{"role": "user", "content": cell_prompt(c)}]})
         except Exception as e: return c["id"], None, str(e)
         return c["id"], C.text_of(m).strip(), None
-    with ThreadPoolExecutor(16) as ex: res = list(ex.map(run, todo))
+    with ThreadPoolExecutor(24) as ex: res = list(ex.map(run, todo))
     for cid, txt, err in res:
         c = byid[cid]
         if not txt: c["error"] = err; continue
@@ -102,7 +102,7 @@ def write(out):
         else: c["text"], c["question"] = split_q(txt)
     with open(out, "w") as f:
         for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print("wrote", sum(1 for r in rows if "text" in r), "of", len(rows), "| errors", sum(1 for r in rows if r.get("error")), "| spent so far $%.2f" % C.spent())
+    print("wrote", sum(1 for r in rows if "text" in r), "of", len(rows), "| remaining", sum(1 for r in rows if "text" not in r), "| errors", sum(1 for r in rows if r.get("error")), "| spent so far $%.2f" % C.spent())
 
 def split_q(t):
     t = t.strip(); qs = [m for m in re.finditer(r"Should\b[^?]*\?", t)]
