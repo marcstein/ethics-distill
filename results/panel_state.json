@@ -1,0 +1,20 @@
+{
+ "train": {
+  "batches": [
+   "msgbatch_01RbB1vAYqcKPY6AXVfon5qi"
+  ],
+  "model": "claude-sonnet-5",
+  "n": 8000,
+  "est": 86.8,
+  "t": 1790094561.688166
+ },
+ "eval": {
+  "batches": [
+   "msgbatch_014vV6zsJroUr5twH2SSM5KC"
+  ],
+  "model": "claude-opus-5",
+  "n": 2400,
+  "est": 65.1,
+  "t": 1790094563.0260372
+ }
+}
