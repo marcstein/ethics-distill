@@ -78,6 +78,31 @@ def retry(name, limit=60):
     with open(out, "w") as f:
         for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
     print(name, "still bad:", sum(1 for r in rows if not r["output"]), "| spent $%.2f" % C.spent())
+def submit_retry(name):
+    """Resubmit the rows that are still invalid as a new batch (half the synchronous price)."""
+    v = state()[name]; rows = C.jsonl_read(outpath(name)); S = {s["id"]: s for s in scen(name)}
+    bad = [r for r in rows if not r["output"]]; key = f"{name}_retry{sum(1 for k in state() if k.startswith(name + '_retry')) + 1}"
+    reqs = [{"custom_id": f"{r['sid']}__{r['seat']}", "params": params(v["model"], r["seat"], S[r["sid"]])} for r in bad]
+    est = len(reqs) * (2100 * C.PRICE[v["model"]][0] + 1750 * C.PRICE[v["model"]][1]) / 1e6 * 0.5; C.check_cap(est)
+    b = C.http("POST", "/messages/batches", {"requests": reqs}); state({key: {"batches": [b["id"]], "model": v["model"], "n": len(reqs), "est": round(est, 2), "t": time.time(), "for": name}})
+    print(key, b["id"], len(reqs), "requests, est $%.2f" % est)
+def collect_retry(name):
+    """Merge every ended retry batch for NAME into its seats file."""
+    rows = C.jsonl_read(outpath(name)); idx = {(r["sid"], r["seat"]): i for i, r in enumerate(rows)}; merged = 0; ui = uo = 0
+    for k, v in state().items():
+        if v.get("for") != name or v.get("collected"): continue
+        b = C.http("GET", f"/messages/batches/{v['batches'][0]}")
+        if b["processing_status"] != "ended": print(k, "not ended"); continue
+        for line in C.http("GET", b["results_url"], raw=True).decode().splitlines():
+            r = json.loads(line); sid, seat = r["custom_id"].split("__"); m = r["result"].get("message", {}) if r["result"]["type"] == "succeeded" else {}
+            o = repair(C.tool_input(m)) if m else None
+            if m: ui += m["usage"]["input_tokens"]; uo += m["usage"]["output_tokens"]
+            if valid(o) and not rows[idx[(sid, seat)]]["output"]: rows[idx[(sid, seat)]]["output"] = o; rows[idx[(sid, seat)]]["retried"] = k; merged += 1
+        v["collected"] = True; state({k: v})
+        C.record(f"panel_{name}_retrybatch", v["model"], {"input_tokens": ui, "output_tokens": uo}, batch=True, n=v["n"])
+    with open(outpath(name), "w") as f:
+        for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    print(name, "merged", merged, "| still bad:", sum(1 for r in rows if not r["output"]), "| spent $%.2f" % C.spent())
 def status():
     for name in SETS:
         out = outpath(name)
@@ -86,4 +111,4 @@ def status():
     print("spent $%.2f" % C.spent())
 if __name__ == "__main__":
     a = sys.argv[1:]
-    {"submit": lambda: submit(a[1], a[2]), "poll": poll, "collect": lambda: collect(a[1]), "retry": lambda: retry(a[1]), "status": status}[a[0]]()
+    {"submit": lambda: submit(a[1], a[2]), "poll": poll, "collect": lambda: collect(a[1]), "retry": lambda: retry(a[1]), "submit_retry": lambda: submit_retry(a[1]), "collect_retry": lambda: collect_retry(a[1]), "status": status}[a[0]]()

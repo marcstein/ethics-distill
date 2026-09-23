@@ -16,5 +16,15 @@
   "n": 2400,
   "est": 65.1,
   "t": 1790094563.0260372
+ },
+ "train_retry1": {
+  "batches": [
+   "msgbatch_01XLBPYKTb1NtZtt9KvLtKuR"
+  ],
+  "model": "claude-sonnet-5",
+  "n": 1990,
+  "est": 21.59,
+  "t": 1790182039.9683073,
+  "for": "train"
  }
 }
