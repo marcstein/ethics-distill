@@ -2,8 +2,9 @@
 import json, os, re, time, urllib.request, urllib.error
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 API = "https://api.anthropic.com/v1"
-PRICE = {"claude-sonnet-5": (2, 10), "claude-opus-5": (5, 25), "claude-haiku-4-5-20251001": (1, 5)}
+PRICE = {"claude-sonnet-5": (2, 10), "claude-opus-5": (5, 25), "claude-opus-5-5": (4, 20), "claude-haiku-4-5-20251001": (1, 5)}
 LEDGER = os.path.join(ROOT, "results", "spend_ledger.jsonl")
+OPUS = "claude-opus-5-5"  # default for judging and any new Opus work; the eval gold set (data/eval/seats.jsonl) was generated on claude-opus-5 before this switch
 
 def env(k, default=None):
     for line in open(os.path.join(ROOT, ".env")):
