@@ -6,3 +6,5 @@ data/eval/*.jsonl
 results/*.jsonl
 models/
 *.safetensors
+data/sft/
+train/runs/
