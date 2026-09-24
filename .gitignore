@@ -8,3 +8,5 @@ models/
 *.safetensors
 data/sft/
 train/runs/
+eval/gen/
+eval/_scratch/
