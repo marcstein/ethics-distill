@@ -39,7 +39,7 @@ def collate(b):
     return {"input_ids": ids, "labels": lab, "attention_mask": (torch.arange(n)[None] < torch.tensor([len(i) for i, _ in b])[:, None]).long()}
 train = DS(a.data); dev = DS(a.dev, a.dev_seat) if a.dev and os.path.exists(a.dev) else None
 print(f"train {len(train)} ex, {train.ntok/1e6:.2f}M tok, truncated {train.cut} | dev {len(dev) if dev else 0}", flush=True)
-model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
+model = AutoModelForCausalLM.from_pretrained(a.model, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
 model.gradient_checkpointing_enable(); model.enable_input_require_grads()
 model = get_peft_model(model, LoraConfig(r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.05, task_type="CAUSAL_LM",
                        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]))
@@ -52,10 +52,10 @@ class Speed(TrainerCallback):
             logs["tok_per_s"] = round(seen * train.ntok / len(train) / dt); logs["mem_gb"] = round(torch.cuda.max_memory_allocated() / 1e9, 1)
 steps_per_epoch = math.ceil(len(train) / (a.bs * a.accum))
 args = TrainingArguments(output_dir=a.out, per_device_train_batch_size=a.bs, gradient_accumulation_steps=a.accum,
-    num_train_epochs=a.epochs, max_steps=a.max_steps, learning_rate=a.lr, lr_scheduler_type="cosine", warmup_ratio=0.05,
+    num_train_epochs=a.epochs, max_steps=a.max_steps, learning_rate=a.lr, lr_scheduler_type="cosine", warmup_steps=max(1, int(0.05 * (a.max_steps if a.max_steps > 0 else steps_per_epoch * a.epochs))),
     weight_decay=0.0, bf16=True, logging_steps=5, save_strategy="no" if a.max_steps > 0 else "epoch", save_total_limit=2,
     eval_strategy="no" if (dev is None or a.max_steps > 0) else "steps", eval_steps=max(10, steps_per_epoch // 2),
-    per_device_eval_batch_size=a.bs, report_to="none", seed=a.seed, group_by_length=True, remove_unused_columns=False,
+    per_device_eval_batch_size=a.bs, report_to="none", seed=a.seed, remove_unused_columns=False,
     dataloader_num_workers=2)
 tr = Trainer(model=model, args=args, train_dataset=train, eval_dataset=dev, data_collator=collate, callbacks=[Speed()])
 t0 = time.time(); tr.train(); el = time.time() - t0
