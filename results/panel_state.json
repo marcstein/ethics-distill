@@ -25,6 +25,8 @@
   "n": 1990,
   "est": 21.59,
   "t": 1790182039.9683073,
-  "for": "train"
+  "for": "train",
+  "collected": true,
+  "canceled": true
  }
 }
