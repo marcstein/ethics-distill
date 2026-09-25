@@ -17,10 +17,15 @@ def pos_stats(pairs):
     if not pairs: return {}
     return {"n": len(pairs), "exact": sum(m == g for m, g in pairs) / len(pairs), "within1": sum(abs(m - g) <= 1 for m, g in pairs) / len(pairs),
             "sign": sum(sgn(m) == sgn(g) for m, g in pairs) / len(pairs), "mae": sum(abs(m - g) for m, g in pairs) / len(pairs)}
+import re
+def clean(t):
+    """Trained students do not emit <|im_end|> (LoRA can't raise that untrained logit) and run on; keep the first analysis only."""
+    m = re.search(r"Would change if:[^\n\t]*", t)
+    return t[:m.end()] if m else t
 def score(path):
     rows = C.jsonl_read(path); M = {}; valid = 0; trunc = 0
     for r in rows:
-        o = F.parse(r["text"]); ok = o["position"] is not None and all(o.get(k) for k, _ in F.FIELDS if k not in ("modification", "open_facts"))
+        o = F.parse(clean(r["text"])); ok = o["position"] is not None and all(o.get(k) for k, _ in F.FIELDS if k not in ("modification", "open_facts"))
         valid += ok; trunc += r.get("finish") == "length"; M[(r["sid"], r["seat"])] = o["position"]
     res = {"name": os.path.basename(path)[:-6], "rows": len(rows), "valid": valid / len(rows), "truncated": trunc / len(rows)}
     def pairs(seats, dom):
