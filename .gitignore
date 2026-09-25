@@ -10,3 +10,4 @@ data/sft/
 train/runs/
 eval/gen/
 eval/_scratch/
+reader/data/
