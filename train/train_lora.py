@@ -16,6 +16,7 @@ ap.add_argument("--dev-seat", default=None, help="restrict dev loss to one seat 
 ap.add_argument("--epochs", type=float, default=2); ap.add_argument("--lr", type=float, default=2e-4)
 ap.add_argument("--rank", type=int, default=16); ap.add_argument("--max-len", type=int, default=3072)
 ap.add_argument("--bs", type=int, default=4); ap.add_argument("--accum", type=int, default=4)
+ap.add_argument("--no-gc", action="store_true", help="skip gradient checkpointing (big GPUs: fewer, larger kernels)")
 ap.add_argument("--max-steps", type=int, default=-1); ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 tok = AutoTokenizer.from_pretrained(a.model); tok.pad_token = tok.pad_token or "<|endoftext|>"
@@ -40,7 +41,7 @@ def collate(b):
 train = DS(a.data); dev = DS(a.dev, a.dev_seat) if a.dev and os.path.exists(a.dev) else None
 print(f"train {len(train)} ex, {train.ntok/1e6:.2f}M tok, truncated {train.cut} | dev {len(dev) if dev else 0}", flush=True)
 model = AutoModelForCausalLM.from_pretrained(a.model, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
-model.gradient_checkpointing_enable(); model.enable_input_require_grads()
+if not a.no_gc: model.gradient_checkpointing_enable(); model.enable_input_require_grads()
 model = get_peft_model(model, LoraConfig(r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.05, task_type="CAUSAL_LM",
                        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]))
 model.print_trainable_parameters()

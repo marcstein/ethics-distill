@@ -2,7 +2,9 @@
 """Build chat-format SFT files: per-seat and merged, nested case tiers 250/500/1000, plus dev/test from the eval set."""
 import json, os, random, collections
 import common as C, panel as P, sft_format as F
-R = C.ROOT; OUT = os.path.join(R, "data", "sft"); SEED = 20260924; TIERS = [250, 500, 1000]; NDEV = 40
+import argparse
+_ap = argparse.ArgumentParser(); _ap.add_argument("--seats", default=None); _ap.add_argument("--out", default="sft"); _a = _ap.parse_args()
+R = C.ROOT; OUT = os.path.join(R, "data", _a.out); SEED = 20260924; TIERS = [250, 500, 1000]; NDEV = 40
 def ex(seat, s, o): return {"messages": [{"role": "system", "content": F.system(seat)}, {"role": "user", "content": F.user(s)},
                                          {"role": "assistant", "content": F.render(o)}], "sid": s["id"], "seat": seat}
 def groups(S):   # pair twins travel together
@@ -24,7 +26,7 @@ def write(path, rows):
         for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
 def main():
     S = P.scen("train"); byid = {s["id"]: s for s in S}
-    A = {(r["sid"], r["seat"]): r["output"] for r in C.jsonl_read(P.outpath("train"))}
+    A = {(r["sid"], r["seat"]): r["output"] for r in C.jsonl_read(_a.seats or P.outpath("train"))}
     assert all(A.values()) and len(A) == len(S) * len(P.SEATS)
     tiers = nested_tiers(S); stats = {}
     for t, ids in tiers.items():
