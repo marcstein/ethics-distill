@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Waits for the training queue to finish, then generates on the test set for every config. Skips configs already generated.
 cd "$(dirname "$0")"; source ../.venv-vllm/bin/activate; mkdir -p gen logs
+export VLLM_USE_FLASHINFER_SAMPLER=0   # flashinfer JIT needs nvcc, which puget lacks
 until grep -q "QUEUE COMPLETE" ../train/queue.log; do sleep 120; done
 g() { n=$1; shift; [ -s gen/$n.jsonl ] && { echo "skip $n"; return; }
       echo "$(date -u +%FT%TZ) start $n"; python gen.py --name $n "$@" > logs/$n.log 2>&1 && echo "$(date -u +%FT%TZ) done $n" || echo "$(date -u +%FT%TZ) FAILED $n"; }
