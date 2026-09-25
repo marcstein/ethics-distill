@@ -20,7 +20,7 @@ def scen(name):
 def system_for(seat): return (KM.MODERN if seat == "KantModern" else V.SEATS[seat]) + "\n" + V.SEAT_COMMON
 def params(model, seat, s):
     return {"model": model, "max_tokens": 3500, "system": system_for(seat), "tools": [V.SEAT_TOOL],
-            "tool_choice": {"type": "tool", "name": "record_analysis"}, "messages": [{"role": "user", "content": V.seat_user(s)}]}
+            "tool_choice": ({"type": "auto"} if model == "claude-opus-5-5" else {"type": "tool", "name": "record_analysis"}), "messages": [{"role": "user", "content": V.seat_user(s)}]}
 def repair(o):
     if not isinstance(o, dict): return o
     for k, spec in PROPS.items():
