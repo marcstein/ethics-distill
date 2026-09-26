@@ -2,7 +2,7 @@
 
 Research project (Marc Stein): can the Ethics Panel's seven-seat moral reasoning be distilled into the weights of a small open model?
 Seats: Kant (historical), Mill, Aristotle, Rawls, Hegel, Spinoza, Aquinas; "KantModern" (contemporary Kantian) is an annotation, never counted in the panel.
-Results so far: docs/STATUS.md (read it first). Plans: docs/round2_plan.md. Production app ../ethics-panel is out of scope — never modify it.
+Results so far: docs/STATUS.md (results) and docs/phase3_plan.md (next phase) (read it first). Plans: docs/round2_plan.md. Production app ../ethics-panel is out of scope — never modify it.
 
 ## Conventions
 - Times to Marc in US Eastern. Commits as `Marc Stein <marc.stein@gmail.com>`.
