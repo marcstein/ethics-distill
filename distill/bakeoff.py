@@ -10,8 +10,8 @@ def key(): return [l.split("=", 1)[1].strip() for l in open(os.path.join(C.ROOT,
 def spent(): return sum(r["cost"] for r in C.jsonl_read(LED))
 def out(m): return os.path.join(C.ROOT, "results", "bakeoff_" + m.split("/")[1] + ".jsonl")
 TOOL = {"type": "function", "function": {"name": V.SEAT_TOOL["name"], "description": V.SEAT_TOOL["description"], "parameters": V.SEAT_TOOL["input_schema"]}}
-def call(model, seat, s):
-    body = {"model": model, "max_tokens": 3500, "temperature": 0.7, "messages": [{"role": "system", "content": P.system_for(seat)}, {"role": "user", "content": V.seat_user(s)}],
+def call(model, seat, s, temperature=0.7):
+    body = {"model": model, "max_tokens": 3500, "temperature": temperature, "messages": [{"role": "system", "content": P.system_for(seat)}, {"role": "user", "content": V.seat_user(s)}],
             "tools": [TOOL], "tool_choice": {"type": "function", "function": {"name": "record_analysis"}},
             "reasoning": {"enabled": False}, "usage": {"include": True}}
     req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", data=json.dumps(body).encode(), method="POST",
