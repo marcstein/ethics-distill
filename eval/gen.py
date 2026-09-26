@@ -19,8 +19,8 @@ rows = [json.loads(l) for l in open(a.test)]
 if a.limit: keep = list(dict.fromkeys(r["sid"] for r in rows))[:a.limit]; rows = [r for r in rows if r["sid"] in set(keep)]
 full = json.load(open("baseline_prompts.json"))
 def prompt(r):
-    sys_ = full[r["seat"]] if a.prompt == "full" else r["messages"][0]["content"]
-    p = f"<|im_start|>system\n{sys_}<|im_end|>\n<|im_start|>user\n{r['messages'][1]['content']}<|im_end|>\n<|im_start|>assistant\n"
+    sys_ = full.get(r["seat"], "") if a.prompt == "full" else r["messages"][0]["content"]
+    p = (f"<|im_start|>system\n{sys_}<|im_end|>\n" if sys_ else "") + f"<|im_start|>user\n{r['messages'][1]['content']}<|im_end|>\n<|im_start|>assistant\n"
     return p + ("<think>\n\n</think>\n\n" if a.nothink else "")
 lora_ids = {}
 def lreq(seat):
@@ -36,6 +36,6 @@ outs = llm.generate([prompt(r) for r in rows], sp, lora_request=reqs if a.lora e
 os.makedirs("gen", exist_ok=True)
 with open(f"gen/{a.name}.jsonl", "w") as f:
     for r, o in zip(rows, outs):
-        f.write(json.dumps({"sid": r["sid"], "seat": r["seat"], "domain": r.get("domain"), "text": o.outputs[0].text,
+        f.write(json.dumps({"sid": r["sid"], "seat": r["seat"], "variant": r.get("variant"), "domain": r.get("domain"), "text": o.outputs[0].text,
                             "finish": o.outputs[0].finish_reason, "ntok": len(o.outputs[0].token_ids)}, ensure_ascii=False) + "\n")
 print("wrote", len(rows), "to", f"gen/{a.name}.jsonl")
