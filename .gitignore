@@ -12,3 +12,4 @@ eval/gen/
 eval/_scratch/
 reader/data/
 train/runs/
+.DS_Store
