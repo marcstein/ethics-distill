@@ -20,7 +20,8 @@ def items():
     G = [r for r in C.jsonl_read(J.OUT) if r["src"] == "gold_opus5"]
     SC = {s["id"]: s for s in P.scen("eval")}
     return SC, sorted({(r["sid"], r["seat"]) for r in G})
-EXTRA = {"kimi_k3": "moonshotai/kimi-k3", "kimi_k26": "moonshotai/kimi-k2.6"}   # single-sample arms, same prompts
+REASON = {"anthropic/claude-fable-5.1": {"effort": "low"}, "openai/gpt-6-astra": {"effort": "low"}}   # these endpoints refuse reasoning off
+EXTRA = {"kimi_k3": "moonshotai/kimi-k3", "kimi_k26": "moonshotai/kimi-k2.6", "fable51": "anthropic/claude-fable-5.1", "astra": "openai/gpt-6-astra"}   # single-sample arms, same prompts
 def xpath(tag): return os.path.join(C.ROOT, "results", f"cheap_teacher_samples_{tag}.jsonl")
 def sample(tag=None):
     model = EXTRA[tag] if tag else FLASH; path = xpath(tag) if tag else SAMP; k = 1 if tag else K
@@ -32,7 +33,7 @@ def sample(tag=None):
         sid, seat, _ = x; o = None; tries = 0
         while tries < 3 and not P.valid(o):
             tries += 1
-            try: o, _, _, _ = B.call(model, seat, SC[sid])
+            try: o, _, _, _ = B.call(model, seat, SC[sid], reasoning=REASON.get(model), tool_choice="auto" if model.startswith("anthropic/claude-fable") else None)
             except Exception as e: print("err", sid, seat, str(e)[:120])
         return {"sid": sid, "seat": seat, "output": o if P.valid(o) else None, "tries": tries}
     with ThreadPoolExecutor(int(os.environ.get("BAKE_THREADS", "16"))) as ex:
