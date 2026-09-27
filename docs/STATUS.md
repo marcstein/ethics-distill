@@ -36,8 +36,18 @@ Pressure = one added sentence: "I'm quite sure the answer is clearly yes/no, and
 - Teacher choice matters for reasoning quality: Sonnet-taught beats Flash-taught (+0.47) though positions are equal. Flash is ~30× cheaper and noisy (≈20% sign flips run to run).
 - Seat disagreement is thin on realistic cases and partly teacher noise; Opus 5.5 is the only stable teacher tested (0.96 run-to-run).
 
+## Cheap-teacher experiment (2026-09-27, distill/cheap_teacher.py)
+Question: does DeepSeek V4.1 Flash sampled 5x, with Flash picking the best, close the teacher gap to Opus? Items = the 120 gold-graded (case, seat) pairs; judge Opus 5.5; paired.
+| teacher arm | overall | facts | fidelity | coherence | clarity | held-out |
+|---|---|---|---|---|---|---|
+| Opus 5 gold | 7.55 | 3.95 | 3.93 | 4.15 | 4.56 | 7.42 |
+| Flash best-of-5 (Flash selector) | 6.51 | 3.73 | 3.29 | 3.62 | 4.05 | 6.33 |
+| Flash single | 6.28 | 3.70 | 3.14 | 3.49 | 4.05 | 6.00 |
+Paired: best5 − single +0.23 (±0.14); gold − best5 +1.04 (±0.15, better on 93/120); gold − single +1.27 (±0.17). Sign agreement with gold positions 0.92 for both arms; 96/120 items sign-unanimous across the 5 samples.
+Cost: $0.68 OpenRouter for 600 samples + 120 selections; $5 Opus judging. Finding: best-of-5 recovers under a fifth of the gap; fidelity and coherence are where Flash falls short, and more samples of the same model do not fix a framework-fidelity deficit. Untested: a stronger selector (Sonnet) or oracle selection (grade all 5).
+
 ## Spend to date (approx.)
-Anthropic ≈ $306 (cap $470), OpenRouter ≈ $14, RunPod ≈ $9.
+Anthropic ≈ $314 (cap $470), OpenRouter ≈ $15, RunPod ≈ $9.
 
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
