@@ -20,22 +20,25 @@ def items():
     G = [r for r in C.jsonl_read(J.OUT) if r["src"] == "gold_opus5"]
     SC = {s["id"]: s for s in P.scen("eval")}
     return SC, sorted({(r["sid"], r["seat"]) for r in G})
-def sample():
-    SC, keys = items(); done = collections.Counter((r["sid"], r["seat"]) for r in C.jsonl_read(SAMP) if r["output"])
-    todo = [(sid, seat, i) for sid, seat in keys for i in range(K - done[(sid, seat)])]
+EXTRA = {"kimi_k3": "moonshotai/kimi-k3", "kimi_k26": "moonshotai/kimi-k2.6"}   # single-sample arms, same prompts
+def xpath(tag): return os.path.join(C.ROOT, "results", f"cheap_teacher_samples_{tag}.jsonl")
+def sample(tag=None):
+    model = EXTRA[tag] if tag else FLASH; path = xpath(tag) if tag else SAMP; k = 1 if tag else K
+    SC, keys = items(); done = collections.Counter((r["sid"], r["seat"]) for r in C.jsonl_read(path) if r["output"])
+    todo = [(sid, seat, i) for sid, seat in keys for i in range(k - done[(sid, seat)])]
     if B.spent() > B.ORCAP: raise SystemExit("OpenRouter cap reached")
     print("sampling", len(todo), "Flash calls"); t0 = time.time()
     def one(x):
         sid, seat, _ = x; o = None; tries = 0
         while tries < 3 and not P.valid(o):
             tries += 1
-            try: o, _, _, _ = B.call(FLASH, seat, SC[sid])
+            try: o, _, _, _ = B.call(model, seat, SC[sid])
             except Exception as e: print("err", sid, seat, str(e)[:120])
         return {"sid": sid, "seat": seat, "output": o if P.valid(o) else None, "tries": tries}
     with ThreadPoolExecutor(int(os.environ.get("BAKE_THREADS", "16"))) as ex:
-        for f in as_completed([ex.submit(one, x) for x in todo]): C.jsonl_append(SAMP, [f.result()])
-    n = sum(1 for r in C.jsonl_read(SAMP) if r["output"])
-    print(f"valid samples {n}/{len(keys)*K} in {time.time()-t0:.0f}s | OpenRouter spent ${B.spent():.2f}")
+        for f in as_completed([ex.submit(one, x) for x in todo]): C.jsonl_append(path, [f.result()])
+    n = sum(1 for r in C.jsonl_read(path) if r["output"])
+    print(f"{model}: valid samples {n}/{len(keys)*k} in {time.time()-t0:.0f}s | OpenRouter spent ${B.spent():.2f}")
 SEL_TOOL = {"type": "function", "function": {"name": "pick", "description": "Record the best analysis.", "parameters": {"type": "object", "properties": {
     "best": {"type": "integer", "description": "1-based index of the best analysis"}, "why": {"type": "string"}}, "required": ["best", "why"]}}}
 def select():
@@ -76,6 +79,9 @@ def arms():
     A = {}
     for (sid, seat), c in S.items(): A[("flash_single", sid, seat)] = c[0]
     for r in C.jsonl_read(SEL): A[("flash_best5", r["sid"], r["seat"])] = S[(r["sid"], r["seat"])][r["best"]]
+    for tag in EXTRA:
+        for r in C.jsonl_read(xpath(tag)):
+            if r["output"]: A[(tag + "_single", r["sid"], r["seat"])] = r["output"]
     return A
 def submit():
     SC, _ = items(); A = arms(); done = {(r["src"], r["sid"], r["seat"]) for r in C.jsonl_read(OUT)}
@@ -114,6 +120,7 @@ def report():
         se = st.stdev(d) / len(d) ** 0.5
         print(f"{a} - {b}: {st.mean(d):+.2f} ±{1.96*se:.2f} (n={len(d)}, {sum(x>0 for x in d)} better / {sum(x<0 for x in d)} worse)")
     paired("flash_best5", "flash_single"); paired("gold_opus5", "flash_best5"); paired("gold_opus5", "flash_single")
+    for tag in EXTRA: paired("gold_opus5", tag + "_single"); paired(tag + "_single", "flash_single")
     # position agreement across the 5 samples, and of each arm with gold positions
     S = collections.defaultdict(list)
     for r in C.jsonl_read(SAMP):
@@ -121,16 +128,17 @@ def report():
     unan = sum(1 for v in S.values() if len({sgn(x) for x in v}) == 1); print(f"samples: sign-unanimous items {unan}/{len(S)}")
     gold = {(r["sid"], r["seat"]): r["output"]["position"] for r in C.jsonl_read(P.outpath("eval"))}
     A = arms()
-    for src in ("flash_single", "flash_best5"):
+    for src in ["flash_single", "flash_best5"] + [t + "_single" for t in EXTRA]:
         ks = [k for k in A if k[0] == src and (k[1], k[2]) in gold]
         print(f"{src} sign agreement with gold positions: {sum(sgn(A[k]['position'])==sgn(gold[(k[1],k[2])]) for k in ks)/max(1,len(ks)):.2f} (n={len(ks)})")
     L = collections.defaultdict(float)
     for r in C.jsonl_read(B.LED):
-        if r["model"].startswith(FLASH) and r["t"] > START: L[r["model"]] += r["cost"]
+        if r["t"] > START and (r["model"].startswith(FLASH) or r["model"] in EXTRA.values()): L[r["model"]] += r["cost"]
     print("OpenRouter cost this experiment:", {k: round(v, 3) for k, v in L.items()})
 START = 0
 if __name__ == "__main__":
     ST = os.path.join(C.ROOT, "results", "cheap_teacher_start.json")
     if not os.path.exists(ST): json.dump({"t": time.time()}, open(ST, "w"))
     START = json.load(open(ST))["t"] - 1
-    {"sample": sample, "select": select, "submit": submit, "collect": collect, "report": report}[sys.argv[1]]()
+    if sys.argv[1] == "single": sample(sys.argv[2])
+    else: {"sample": sample, "select": select, "submit": submit, "collect": collect, "report": report}[sys.argv[1]]()
