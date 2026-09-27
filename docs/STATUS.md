@@ -43,11 +43,14 @@ Question: does DeepSeek V4.1 Flash sampled 5x, with Flash picking the best, clos
 | Opus 5 gold | 7.55 | 3.95 | 3.93 | 4.15 | 4.56 | 7.42 |
 | Flash best-of-5 (Flash selector) | 6.51 | 3.73 | 3.29 | 3.62 | 4.05 | 6.33 |
 | Flash single | 6.28 | 3.70 | 3.14 | 3.49 | 4.05 | 6.00 |
+| Kimi K3 single | 6.87 | 3.68 | 3.53 | 3.89 | 4.15 | 6.70 |
+| Kimi K2.6 single | 5.90 | 3.54 | 2.99 | 3.30 | 3.85 | 5.55 |
 Paired: best5 − single +0.23 (±0.14); gold − best5 +1.04 (±0.15, better on 93/120); gold − single +1.27 (±0.17). Sign agreement with gold positions 0.92 for both arms; 96/120 items sign-unanimous across the 5 samples.
 Cost: $0.68 OpenRouter for 600 samples + 120 selections; $5 Opus judging. Finding: best-of-5 recovers under a fifth of the gap; fidelity and coherence are where Flash falls short, and more samples of the same model do not fix a framework-fidelity deficit. Untested: a stronger selector (Sonnet) or oracle selection (grade all 5).
+Kimi arms (single sample, same prompts/judge): K3 gold − K3 +0.68 (±0.19, better on 66/120); K3 − Flash +0.58 (±0.20). K2.6 is below Flash (−0.38 ±0.20) with worse sign agreement (0.85). K3 costs ~$0.015/call vs Opus 5.5 ~$0.026 and Flash ~$0.0009: the best non-Anthropic teacher tested, at 75% of Opus price. Cost: K3 $1.81, K2.6 $0.32, judging ~$4.5.
 
 ## Spend to date (approx.)
-Anthropic ≈ $314 (cap $470), OpenRouter ≈ $15, RunPod ≈ $9.
+Anthropic ≈ $318 (cap $470), OpenRouter ≈ $17, RunPod ≈ $9.
 
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
