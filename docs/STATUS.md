@@ -44,13 +44,16 @@ Question: does DeepSeek V4.1 Flash sampled 5x, with Flash picking the best, clos
 | Flash best-of-5 (Flash selector) | 6.51 | 3.73 | 3.29 | 3.62 | 4.05 | 6.33 |
 | Flash single | 6.28 | 3.70 | 3.14 | 3.49 | 4.05 | 6.00 |
 | Kimi K3 single | 6.87 | 3.68 | 3.53 | 3.89 | 4.15 | 6.70 |
+| GPT-6 Astra single (reasoning low) | 7.75 | 4.93 | 3.90 | 4.33 | 4.17 | 7.67 |
+| Claude Fable 5.1 single (reasoning low) | 7.68 | 4.03 | 3.97 | 4.32 | 4.64 | 7.51 |
 | Kimi K2.6 single | 5.90 | 3.54 | 2.99 | 3.30 | 3.85 | 5.55 |
 Paired: best5 − single +0.23 (±0.14); gold − best5 +1.04 (±0.15, better on 93/120); gold − single +1.27 (±0.17). Sign agreement with gold positions 0.92 for both arms; 96/120 items sign-unanimous across the 5 samples.
 Cost: $0.68 OpenRouter for 600 samples + 120 selections; $5 Opus judging. Finding: best-of-5 recovers under a fifth of the gap; fidelity and coherence are where Flash falls short, and more samples of the same model do not fix a framework-fidelity deficit. Untested: a stronger selector (Sonnet) or oracle selection (grade all 5).
-Kimi arms (single sample, same prompts/judge): K3 gold − K3 +0.68 (±0.19, better on 66/120); K3 − Flash +0.58 (±0.20). K2.6 is below Flash (−0.38 ±0.20) with worse sign agreement (0.85). K3 costs ~$0.015/call vs Opus 5.5 ~$0.026 and Flash ~$0.0009: the best non-Anthropic teacher tested, at 75% of Opus price. Cost: K3 $1.81, K2.6 $0.32, judging ~$4.5.
+Kimi arms (single sample, same prompts/judge): K3 gold − K3 +0.68 (±0.19, better on 66/120); K3 − Flash +0.58 (±0.20). K2.6 is below Flash (−0.38 ±0.20) with worse sign agreement (0.85). K3 costs ~$0.015/call vs Opus 5.5 ~$0.026 and Flash ~$0.0009: the best mid-price non-Anthropic teacher tested, at 75% of Opus price.
+Frontier arms (2026-09-27, $10/$50 per M on OpenRouter, reasoning effort low): Astra − gold +0.20 (±0.14), Fable − gold +0.11 (±0.15, n=117; 3 items failed validity 3×), Fable − Astra −0.09 (±0.12): all three frontier teachers are within a quarter point and the Opus-5.5 judge ranks the OpenAI model highest, so no family bias in Anthropic's favour is visible. Astra's fact_discipline is 4.93 (112/120 fives; judge found no invented facts in 102/120 vs 12/120 for Fable, 3/120 for K3) with shorter reasoning (326 words median vs 455) and lower clarity and sign agreement with gold (0.87 vs 0.91): more conditional, hedged argument. Cost: Astra $6.1, Fable $18.9 (2,100 output tokens/call incl. ~400 reasoning), judging ~$4. Neither is a teacher budget option; both are ceiling references and Astra is the cross-family judge candidate. Cost: K3 $1.81, K2.6 $0.32, judging ~$4.5.
 
 ## Spend to date (approx.)
-Anthropic ≈ $318 (cap $470), OpenRouter ≈ $17, RunPod ≈ $9.
+Anthropic ≈ $322 (cap $470), OpenRouter ≈ $42, RunPod ≈ $9.
 
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
