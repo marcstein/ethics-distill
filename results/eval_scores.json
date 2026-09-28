@@ -50,54 +50,104 @@
   "pairs_relevant_moved_when_gold_moved": 0.7692307692307693
  },
  {
-  "name": "flash_merged_t1000",
+  "name": "q8B_merged_t1000",
   "rows": 2080,
-  "valid": 0.9990384615384615,
-  "truncated": 0.675,
+  "valid": 0.9966346153846154,
+  "truncated": 0.64375,
   "panel_train_domains": {
    "n": 1120,
-   "exact": 0.7330357142857142,
-   "within1": 0.90625,
-   "sign": 0.90625,
-   "mae": 0.41785714285714287
+   "exact": 0.76875,
+   "within1": 0.9196428571428571,
+   "sign": 0.9142857142857143,
+   "mae": 0.3267857142857143
   },
   "panel_heldout": {
    "n": 700,
-   "exact": 0.7157142857142857,
-   "within1": 0.8428571428571429,
-   "sign": 0.8414285714285714,
-   "mae": 0.5285714285714286
+   "exact": 0.6742857142857143,
+   "within1": 0.8642857142857143,
+   "sign": 0.8614285714285714,
+   "mae": 0.5057142857142857
   },
   "kantmodern": {
    "n": 260,
-   "exact": 0.7615384615384615,
-   "within1": 0.9115384615384615,
-   "sign": 0.9076923076923077,
-   "mae": 0.3923076923076923
+   "exact": 0.7692307692307693,
+   "within1": 0.8846153846153846,
+   "sign": 0.8769230769230769,
+   "mae": 0.3769230769230769
   },
   "per_seat_sign": {
-   "Kant": 0.8846153846153846,
-   "Mill": 0.8692307692307693,
-   "Aristotle": 0.9038461538461539,
-   "Rawls": 0.8769230769230769,
-   "Hegel": 0.8769230769230769,
-   "Spinoza": 0.8653846153846154,
-   "Aquinas": 0.8923076923076924,
-   "KantModern": 0.9076923076923077
+   "Kant": 0.8961538461538462,
+   "Mill": 0.8730769230769231,
+   "Aristotle": 0.8961538461538462,
+   "Rawls": 0.9076923076923077,
+   "Hegel": 0.9,
+   "Spinoza": 0.8807692307692307,
+   "Aquinas": 0.9038461538461539,
+   "KantModern": 0.8769230769230769
   },
-  "seat_order_agreement": 0.24320652173913043,
-  "panel_label_agreement": 0.8,
+  "seat_order_agreement": 0.1875,
+  "panel_label_agreement": 0.8307692307692308,
   "spread_model_vs_gold": [
-   0.32970907188299425,
+   0.24632054725586414,
    0.17762045606730378
   ],
-  "dissenter_f1": 0.10596026490066225,
+  "dissenter_f1": 0.12598425196850394,
   "pairs_irrelevant_mean_abs_shift_model_vs_gold": [
-   0.5142857142857142,
+   0.5428571428571428,
    0.22857142857142856
   ],
-  "pairs_relevant_direction_agreement": 0.7403846153846154,
-  "pairs_relevant_moved_when_gold_moved": 0.7692307692307693
+  "pairs_relevant_direction_agreement": 0.7788461538461539,
+  "pairs_relevant_moved_when_gold_moved": 0.8076923076923077
+ },
+ {
+  "name": "q14B_merged_t1000",
+  "rows": 2080,
+  "valid": 0.9923076923076923,
+  "truncated": 0.32596153846153847,
+  "panel_train_domains": {
+   "n": 1120,
+   "exact": 0.7517857142857143,
+   "within1": 0.9205357142857142,
+   "sign": 0.9107142857142857,
+   "mae": 0.3482142857142857
+  },
+  "panel_heldout": {
+   "n": 700,
+   "exact": 0.7014285714285714,
+   "within1": 0.8542857142857143,
+   "sign": 0.8528571428571429,
+   "mae": 0.49714285714285716
+  },
+  "kantmodern": {
+   "n": 260,
+   "exact": 0.8,
+   "within1": 0.9115384615384615,
+   "sign": 0.9,
+   "mae": 0.3076923076923077
+  },
+  "per_seat_sign": {
+   "Kant": 0.8923076923076924,
+   "Mill": 0.8692307692307693,
+   "Aristotle": 0.9038461538461539,
+   "Rawls": 0.9076923076923077,
+   "Hegel": 0.8730769230769231,
+   "Spinoza": 0.8769230769230769,
+   "Aquinas": 0.8961538461538462,
+   "KantModern": 0.9
+  },
+  "seat_order_agreement": 0.2269021739130435,
+  "panel_label_agreement": 0.7923076923076923,
+  "spread_model_vs_gold": [
+   0.29105569819980875,
+   0.17762045606730378
+  ],
+  "dissenter_f1": 0.1,
+  "pairs_irrelevant_mean_abs_shift_model_vs_gold": [
+   0.2571428571428571,
+   0.22857142857142856
+  ],
+  "pairs_relevant_direction_agreement": 0.7692307692307693,
+  "pairs_relevant_moved_when_gold_moved": 0.7788461538461539
  },
  {
   "name": "instruct_full",

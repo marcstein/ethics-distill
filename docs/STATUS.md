@@ -52,9 +52,19 @@ Cost: $0.68 OpenRouter for 600 samples + 120 selections; $5 Opus judging. Findin
 Kimi arms (single sample, same prompts/judge): K3 gold − K3 +0.68 (±0.19, better on 66/120); K3 − Flash +0.58 (±0.20). K2.6 is below Flash (−0.38 ±0.20) with worse sign agreement (0.85). K3 costs ~$0.015/call vs Opus 5.5 ~$0.026 and Flash ~$0.0009: the best mid-price non-Anthropic teacher tested, at 75% of Opus price.
 Frontier arms (2026-09-27, $10/$50 per M on OpenRouter, reasoning effort low): Astra − gold +0.20 (±0.14), Fable − gold +0.11 (±0.15, n=117; 3 items failed validity 3×), Fable − Astra −0.09 (±0.12): all three frontier teachers are within a quarter point and the Opus-5.5 judge ranks the OpenAI model highest, so no family bias in Anthropic's favour is visible. Astra's fact_discipline is 4.93 (112/120 fives; judge found no invented facts in 102/120 vs 12/120 for Fable, 3/120 for K3) with shorter reasoning (326 words median vs 455) and lower clarity and sign agreement with gold (0.87 vs 0.91): more conditional, hedged argument. Cost: Astra $6.1, Fable $18.9 (2,100 output tokens/call incl. ~400 reasoning), judging ~$4. Neither is a teacher budget option; both are ceiling references and Astra is the cross-family judge candidate. Cost: K3 $1.81, K2.6 $0.32, judging ~$4.5.
 
+## Size scaling (2026-09-28, runpod/size_job.sh)
+Same recipe and data as the 4B (Sonnet merged tier1000, LoRA r16, 2 epochs, bs2×8) on Qwen3-8B-Base and Qwen3-14B-Base; one A100 80GB, 8B without gradient checkpointing, 14B with.
+| student | sign (train) | exact | sign (held-out) | panel label | paraphrase same sign / shift | names same sign / shift | push yes flips | push no flips | judge overall | facts | fidelity | coherence | clarity | held-out |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Qwen3-4B | 0.89 | 0.72 | 0.85 | 0.78 | 0.96 / 0.17 | 0.98 / 0.16 | 21% | 34% | 4.74 | 2.86 | 2.61 | 2.58 | 3.34 | 4.47 |
+| Qwen3-8B | 0.91 | 0.77 | 0.86 | 0.83 | 0.96 / 0.16 | 0.98 / 0.12 | 19% | 35% | 4.83 | 3.02 | 2.73 | 2.78 | 2.73 | 4.47 |
+| Qwen3-14B | 0.91 | 0.75 | 0.85 | 0.79 | 0.95 / 0.20 | 0.96 / 0.17 | 23% | 30% | 5.42 | 3.24 | 2.87 | 3.04 | 3.43 | 5.00 |
+Paired judge differences: 8B − 4B +0.09 (±0.19, n.s.); 14B − 4B +0.68 (±0.17); 14B − 8B +0.58 (±0.18); gold − 14B +2.13 (±0.21, vs +2.81 for the 4B).
+Findings: positions saturate by 8B (exact 0.72→0.77, no further gain at 14B). Robustness and pressure flips do not move with size at all. Reasoning quality is flat from 4B to 8B (the 8B lost clarity) and then gains 0.7 at 14B, closing about a quarter of the gap to the teacher; the remaining 2.1 points and the pressure flips are recipe/data limits, not capacity. Training time on the A100: 8B 2.0 h, 14B 4.9 h (gradient checkpointing); generation 25 + 23 min (8B), 40 + 36 min (14B).
+
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
-2. Fix <|im_end|> termination; try 8B/14B on RunPod A100 with the Sonnet data (~$4 / ~$7).
+2. Fix <|im_end|> termination. (8B/14B done: see Size scaling.)
 3. Cheap judge (GLM-5.2 or Flash) calibrated against results/judge_quality.jsonl, so future grading costs pennies.
 4. Round 2 cases only if dissent remains a goal: Opus 5.5 for a few hundred seat-dividing cases, Flash median-of-3 for the rest (docs/round2_plan.md).
 Pending from the Ethics Panel side: blind Hegel sheet v3, synthesis-prompt fix, fact-checker calibration, lending-case mockup.
