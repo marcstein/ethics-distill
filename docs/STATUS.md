@@ -52,9 +52,6 @@ Cost: $0.68 OpenRouter for 600 samples + 120 selections; $5 Opus judging. Findin
 Kimi arms (single sample, same prompts/judge): K3 gold − K3 +0.68 (±0.19, better on 66/120); K3 − Flash +0.58 (±0.20). K2.6 is below Flash (−0.38 ±0.20) with worse sign agreement (0.85). K3 costs ~$0.015/call vs Opus 5.5 ~$0.026 and Flash ~$0.0009: the best mid-price non-Anthropic teacher tested, at 75% of Opus price.
 Frontier arms (2026-09-27, $10/$50 per M on OpenRouter, reasoning effort low): Astra − gold +0.20 (±0.14), Fable − gold +0.11 (±0.15, n=117; 3 items failed validity 3×), Fable − Astra −0.09 (±0.12): all three frontier teachers are within a quarter point and the Opus-5.5 judge ranks the OpenAI model highest, so no family bias in Anthropic's favour is visible. Astra's fact_discipline is 4.93 (112/120 fives; judge found no invented facts in 102/120 vs 12/120 for Fable, 3/120 for K3) with shorter reasoning (326 words median vs 455) and lower clarity and sign agreement with gold (0.87 vs 0.91): more conditional, hedged argument. Cost: Astra $6.1, Fable $18.9 (2,100 output tokens/call incl. ~400 reasoning), judging ~$4. Neither is a teacher budget option; both are ceiling references and Astra is the cross-family judge candidate. Cost: K3 $1.81, K2.6 $0.32, judging ~$4.5.
 
-## Spend to date (approx.)
-Anthropic ≈ $322 (cap $470), OpenRouter ≈ $42, RunPod ≈ $9.
-
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
 2. Fix <|im_end|> termination; try 8B/14B on RunPod A100 with the Sonnet data (~$4 / ~$7).

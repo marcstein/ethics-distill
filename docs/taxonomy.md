@@ -97,5 +97,5 @@ check step flags any that are.
 
 ## Model note (2026-09-23)
 
-The evaluation gold set was generated on `claude-opus-5` (2,400 analyses, batch, $65). Opus 5.5 became the
+The evaluation gold set was generated on `claude-opus-5` (2,400 analyses, batch). Opus 5.5 became the
 default for later Opus work (judging, re-runs) at 20% lower cost. Training data is on `claude-sonnet-5`.
