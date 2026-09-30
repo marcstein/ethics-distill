@@ -15,3 +15,4 @@ train/runs/
 .DS_Store
 docs/spend.local.md
 data/p3/
+logs/
