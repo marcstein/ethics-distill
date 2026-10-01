@@ -76,13 +76,15 @@ def batch_submit():
     """Submit the remaining judgments as one Batch API job (half price, async)."""
     SC, keys = sample(); A = load(); done = {(r["src"], r["sid"], r["seat"]) for r in C.jsonl_read(OUT)}
     jobs = [(src, sid, seat) for sid, seat in keys for src in SRC if (src, sid, seat) in A and (src, sid, seat) not in done]
+    if os.environ.get("ONLY"): jobs = [j for j in jobs if j[0] in os.environ["ONLY"].split(",")]   # ONLY=src1,src2 restricts a submission
+    ST4 = os.environ.get("JQ_STATE", "judge_quality_batch4.json")
     C.check_cap(len(jobs) * 0.015)
     reqs = [{"custom_id": f"{src}__{sid}__{seat}", "params": {"model": C.OPUS, "max_tokens": 3000, "system": RUBRIC.format(name=NAME[seat]), "tools": [TOOL], "tool_choice": {"type": "auto"},
              "messages": [{"role": "user", "content": f"{V.seat_user(SC[sid])}\n\n=== ANALYSIS (as {NAME[seat]}) ===\n{render(A[(src, sid, seat)])}\n\nRecord your grade with the grade tool."}]}} for src, sid, seat in jobs]
     b = C.http("POST", "/messages/batches", {"requests": reqs})
-    json.dump({"batch": b["id"], "n": len(reqs)}, open(os.path.join(C.ROOT, "results", "judge_quality_batch4.json"), "w")); print("submitted", b["id"], len(reqs))
+    json.dump({"batch": b["id"], "n": len(reqs)}, open(os.path.join(C.ROOT, "results", ST4), "w")); print("submitted", b["id"], len(reqs))
 def batch_collect():
-    st_ = json.load(open(os.path.join(C.ROOT, "results", "judge_quality_batch4.json"))); b = C.http("GET", f"/messages/batches/{st_['batch']}")
+    st_ = json.load(open(os.path.join(C.ROOT, "results", os.environ.get("JQ_STATE", "judge_quality_batch4.json")))); b = C.http("GET", f"/messages/batches/{st_['batch']}")
     print(b["processing_status"], b["request_counts"])
     if b["processing_status"] != "ended" or st_.get("collected"): return
     SC, _ = sample(); ui = uo = 0; rows = []
@@ -93,5 +95,5 @@ def batch_collect():
         src, sid, seat = r["custom_id"].split("__")
         if g and "overall" in g: rows.append({"src": src, "sid": sid, "seat": seat, "domain": SC[sid]["domain"], **g})
     C.jsonl_append(OUT, rows); C.record("judge_quality_batch", C.OPUS, {"input_tokens": ui, "output_tokens": uo}, batch=True, n=len(rows))
-    st_["collected"] = True; json.dump(st_, open(os.path.join(C.ROOT, "results", "judge_quality_batch4.json"), "w")); print("collected", len(rows), "| Anthropic $%.2f" % C.spent())
+    st_["collected"] = True; json.dump(st_, open(os.path.join(C.ROOT, "results", os.environ.get("JQ_STATE", "judge_quality_batch4.json")), "w")); print("collected", len(rows), "| Anthropic $%.2f" % C.spent())
 if __name__ == "__main__" and sys.argv[1] in ("submit", "collect"): {"submit": batch_submit, "collect": batch_collect}[sys.argv[1]]()
