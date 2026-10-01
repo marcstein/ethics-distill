@@ -36,3 +36,6 @@ The blind judge (`eval/judge_quality.py`) needs the Anthropic key and runs on th
 ## What "done" looks like for the pilot
 - `data/p3/review.md` shows the ≥85% gate met; `data/p3/sft/train.jsonl` ≈ 480 rows (160 base + 320 pressured), `dpo.jsonl` ≈ 300 pairs, `eval.jsonl` ≈ 360 rows.
 - `python3 p3/score.py p3_sft p3_dpo instruct_prompted` printed and copied into STATUS.md, with one paragraph on whether DPO moved pressure flips and what it cost in over-refusal.
+
+## R7 (2026-09-30)
+Read `docs/phase3_r7_measure_first.md`. Put instruction items 1 to 5 into the Reasoning section of SPEC in `p3/fmt.py` in plain words, and into the writer brief. Hand-voted references: `results/marc_votes_set1.jsonl` (verdicts and reasons), panel votes `results/vote_panel_marc_vote_set1.jsonl`. On any case where Marc and the panel disagree, Marc is the reference.

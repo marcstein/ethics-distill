@@ -39,3 +39,6 @@ Metric: agreement between order0 and order1 per scenario.
 
 ### Sequence
 R1.1, R1.2, R2.2, R2.3 change the targets: do them before any retraining. Then R2.1 filter, R1.3 and R5.1 pairs, rebuild, retrain stage A and B, and re-run judging v2 on the same 24 scenarios so the numbers are comparable. R3 runs on the current models today. R4 goes into the next case-writing round. Write each result under a "Remedies" heading in STATUS.md with the before and after rubric means.
+
+### R7. Measure first, then ask what overrides
+See `docs/phase3_r7_measure_first.md` (panel tilt finding, the SPEC instruction, worked anchors). R7 changes the targets: apply with R1 and R2 before retraining.

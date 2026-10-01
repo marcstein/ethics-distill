@@ -62,6 +62,9 @@ Same recipe and data as the 4B (Sonnet merged tier1000, LoRA r16, 2 epochs, bs2�
 Paired judge differences: 8B − 4B +0.09 (±0.19, n.s.); 14B − 4B +0.68 (±0.17); 14B − 8B +0.58 (±0.18); gold − 14B +2.13 (±0.21, vs +2.81 for the 4B).
 Findings: positions saturate by 8B (exact 0.72→0.77, no further gain at 14B). Robustness and pressure flips do not move with size at all. Reasoning quality is flat from 4B to 8B (the 8B lost clarity) and then gains 0.7 at 14B, closing about a quarter of the gap to the teacher; the remaining 2.1 points and the pressure flips are recipe/data limits, not capacity. Training time on the A100: 8B 2.0 h, 14B 4.9 h (gradient checkpointing); generation 25 + 23 min (8B), 40 + 36 min (14B).
 
+## Panel tilt (2026-09-30, distill/vote_panel.py)
+Ten new two-sided cases were voted by the eight-seat Opus 5.5 panel and independently by a human reader. Panel unanimous on 8 of 10; the human disagreed on 5 of 10 (four of them unanimous panels). In every disagreement the panel took the rule, disclosure, literal-truth or self-sacrifice side and the human took the particular person or relationship. Together with 13 of 20 unanimous verdicts on the round-two fault-line set, this says the seven seats converge far more than the philosophers they are named for; the panel is one rule-first reader in eight voices and cannot be the sole reference on loyalty, desert, mercy or proportion. The students' reflex against the excluded contest judge (blind review, T12) is the same tilt. Remedy R7 (docs/phase3_r7_measure_first.md): measure harm and benefit first, then ask what overrides; human adjudication on contrast pairs and hand-voted sets.
+
 ## Open next steps (lean)
 1. Pressure-resistance training data (cheap; the clearest remaining gap in the "in weights" claim).
 2. Fix <|im_end|> termination. (8B/14B done: see Size scaling.)
