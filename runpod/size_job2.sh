@@ -20,7 +20,8 @@ remote(){ # remote NAME CMD  -> runs CMD detached on the pod, waits for NAME.don
   while true; do sleep 60
     S=$($SSH "cd /root/ed; [ -f $1.done ] && echo done; [ -f $1.fail ] && echo fail; tail -c 300 $1.out | tr '\r' '\n' | tail -1" 2>/dev/null) || { log "ssh poll failed, retrying"; continue; }
     echo "$S" | tail -1 | cut -c1-160; echo "$S" | grep -q '^done' && return 0; echo "$S" | grep -q '^fail' && return 1; done; }
-echo "$SPECS" | while IFS='|' read -r TAG HF GPUS BS ACCUM; do
+exec 3<<< "$SPECS"
+while IFS='|' read -r -u 3 TAG HF GPUS BS ACCUM; do
   [ -z "$TAG" ] && continue
   NAME=${TAG}_merged_t1000
   if [ -f $ED/eval/gen/robust_$NAME.jsonl ]; then log "skip $TAG (outputs exist)"; continue; fi
@@ -34,13 +35,15 @@ echo "$SPECS" | while IFS='|' read -r TAG HF GPUS BS ACCUM; do
   log "$TAG pod at $HOST:$PORT"; python3 rp.py ssh
   for i in $(seq 1 30); do $SSH true 2>/dev/null && break; sleep 10; done
   scp -q $SCPP -o StrictHostKeyChecking=accept-new bootstrap.sh $HOST:/root/ && $SSH "bash /root/bootstrap.sh" || { log "bootstrap failed"; $RP down; kill $WATCH 2>/dev/null; SSH=""; continue; }
-  (cd $ED && tar czf - data/sft/merged/tier1000.jsonl data/sft/dev.jsonl data/sft/test.jsonl eval/robust.jsonl train/train_lora.py eval/gen.py eval/baseline_prompts.json) | $SSH "cd /root/ed && tar xzf -"
+  (cd $ED && tar czf - data/sft/merged/tier1000.jsonl data/sft/dev.jsonl data/sft/test.jsonl eval/robust.jsonl train/train_lora.py eval/gen.py eval/gen_hf.py eval/baseline_prompts.json) | $SSH "cd /root/ed && tar xzf -"
+  if [ -f $ED/train/runs/$NAME/adapter/adapter_config.json ]; then log "adapter exists, uploading and skipping training"; (cd $ED && tar czf - train/runs/$NAME/adapter) | $SSH "cd /root/ed && tar xzf -"; TRAINED=1; else TRAINED=0; fi
   log "training $NAME on $HF"
-  if remote train_$TAG "cd /root/ed/train && . ../.venv/bin/activate && export HF_HUB_ENABLE_HF_TRANSFER=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True && python train_lora.py --model $HF --data ../data/sft/merged/tier1000.jsonl --out runs/$NAME --bs $BS --accum $ACCUM --end eos"; then
+  if [ $TRAINED = 1 ] || remote train_$TAG "cd /root/ed/train && . ../.venv/bin/activate && export HF_HUB_ENABLE_HF_TRANSFER=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True && python train_lora.py --model $HF --data ../data/sft/merged/tier1000.jsonl --out runs/$NAME --bs $BS --accum $ACCUM --end eos"; then
     copyback
-    G="cd /root/ed/eval && . ../.venv-vllm/bin/activate && export VLLM_USE_FLASHINFER_SAMPLER=0 && python gen.py --model $HF --lora ../train/runs/$NAME/adapter"
-    log "generating test set $NAME";  remote gen_$TAG "$G --name $NAME" || log "gen $NAME failed"
-    log "generating robustness $NAME"; remote rob_$TAG "$G --name robust_$NAME --test robust.jsonl" || log "robust gen $NAME failed"
+    G="cd /root/ed/eval && . ../.venv-vllm/bin/activate && export PATH=\$HOME/.local/bin:\$PATH; VIRTUAL_ENV=/root/ed/.venv-vllm uv pip install -q 'mistral_common[opencv]' timm 2>&1 | tail -2; export VLLM_USE_FLASHINFER_SAMPLER=0 && python gen.py --model $HF --lora ../train/runs/$NAME/adapter"
+    H="cd /root/ed/eval && . ../.venv/bin/activate && python gen_hf.py --model $HF --lora ../train/runs/$NAME/adapter --bs ${HFBS:-16}"
+    log "generating test set $NAME";  remote gen_$TAG "$G --name $NAME" || { log "vLLM gen failed, falling back to transformers"; remote genhf_$TAG "$H --name $NAME" || log "gen $NAME failed"; }
+    log "generating robustness $NAME"; remote rob_$TAG "$G --name robust_$NAME --test robust.jsonl" || { log "vLLM robust failed, falling back to transformers"; remote robhf_$TAG "$H --name robust_$NAME --test robust.jsonl" || log "robust gen $NAME failed"; }
   else log "training $TAG failed"; $SSH "tail -c 3000 /root/ed/train_$TAG.out"; fi
   copyback; log "terminating pod for $TAG"; $RP down || true; SSH=""; kill $WATCH 2>/dev/null
 done
