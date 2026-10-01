@@ -39,3 +39,7 @@ The blind judge (`eval/judge_quality.py`) needs the Anthropic key and runs on th
 
 ## R7 (2026-09-30)
 Read `docs/phase3_r7_measure_first.md`. Put instruction items 1 to 5 into the Reasoning section of SPEC in `p3/fmt.py` in plain words, and into the writer brief. Hand-voted references: `results/marc_votes_set1.jsonl` (verdicts and reasons), panel votes `results/vote_panel_marc_vote_set1.jsonl`. On any case where Marc and the panel disagree, Marc is the reference.
+
+## Subscription only (2026-10-01, Marc's decision)
+From now on no Anthropic API or OpenRouter calls for any part of the pipeline: synthesis, panel, judge, meta review all run under subscriptions (Claude Code = Fable/Opus, Codex = Astra). `.env` SPEND_CAP is set to the current ledger so any accidental API submission fails the cap check; do not raise it.
+Judge under subscription: `python3 eval/judge_sub.py pack <src...>` writes blind 12-item packets to `results/judge_sub/todo_<src>_NN.md` (rubric, case, one analysis; no model names). Grade each packet in a fresh Claude Code session, write `results/judge_sub/grades_<src>_NN.jsonl`, run `check`, then `report`. All eight arms are packed (gold, sonnet-4B, flash-4B, instruct, q8b, q14b, mistral24b, gemma31b; 70 packets) so the whole size table is re-graded on one judge; the API judge rows stay in STATUS labelled as the API judge until then.
