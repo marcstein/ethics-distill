@@ -19,7 +19,11 @@ try: model = AutoModelForCausalLM.from_pretrained(a.model, dtype=torch.bfloat16,
 except Exception as e:
     print("CausalLM failed (%s); loading ImageTextToText" % str(e)[:100], flush=True)
     from transformers import AutoModelForImageTextToText
-    model = AutoModelForImageTextToText.from_pretrained(a.model, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
+    try: model = AutoModelForImageTextToText.from_pretrained(a.model, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
+    except Exception as e2:
+        print("ImageTextToText failed (%s); loading AutoModelForMultimodalLM" % str(e2)[:120], flush=True)
+        from transformers import AutoModelForMultimodalLM
+        model = AutoModelForMultimodalLM.from_pretrained(a.model, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
 model = PeftModel.from_pretrained(model, a.lora).merge_and_unload().eval(); print("merged adapter", a.lora, flush=True)
 stops = ["<|im_end|>", "<|endoftext|>", "\n<|im_start|>"]
 os.makedirs("gen", exist_ok=True); t0 = time.time()
