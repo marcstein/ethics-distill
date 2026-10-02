@@ -54,7 +54,7 @@ the deciding fact, and grading a substitute action instead of the one asked abou
 
 [docs/phase3_plan.md](docs/phase3_plan.md) and [docs/phase3_tasks.md](docs/phase3_tasks.md): one
 integrated judgment (reasoning first, verdict last) instead of seven seats; targets written by Claude
-Code and checked by Codex under subscriptions, no API calls; SFT then DPO against pressure, hedging and
+Code and checked by Codex; SFT then DPO against pressure, hedging and
 contradiction; stage A on Gemma 4 31B with Qwen3-4B as the lower bound; judging v2 with semantic verdict
 extraction, sampled consistency and contrast groups, scored against human references where they exist.
 
