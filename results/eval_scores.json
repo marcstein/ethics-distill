@@ -198,5 +198,105 @@
   ],
   "pairs_relevant_direction_agreement": 0.8461538461538461,
   "pairs_relevant_moved_when_gold_moved": 0.8461538461538461
+ },
+ {
+  "name": "gemmaE4B_merged_t1000",
+  "rows": 2080,
+  "valid": 0.9947115384615385,
+  "truncated": 0.0,
+  "panel_train_domains": {
+   "n": 1120,
+   "exact": 0.7321428571428571,
+   "within1": 0.9142857142857143,
+   "sign": 0.9071428571428571,
+   "mae": 0.3830357142857143
+  },
+  "panel_heldout": {
+   "n": 700,
+   "exact": 0.6342857142857142,
+   "within1": 0.8385714285714285,
+   "sign": 0.8328571428571429,
+   "mae": 0.6
+  },
+  "kantmodern": {
+   "n": 260,
+   "exact": 0.7846153846153846,
+   "within1": 0.8961538461538462,
+   "sign": 0.8923076923076924,
+   "mae": 0.36923076923076925
+  },
+  "per_seat_sign": {
+   "Kant": 0.8923076923076924,
+   "Mill": 0.8807692307692307,
+   "Aristotle": 0.8538461538461538,
+   "Rawls": 0.8730769230769231,
+   "Hegel": 0.8615384615384616,
+   "Spinoza": 0.8807692307692307,
+   "Aquinas": 0.9076923076923077,
+   "KantModern": 0.8923076923076924
+  },
+  "seat_order_agreement": 0.22826086956521738,
+  "panel_label_agreement": 0.75,
+  "spread_model_vs_gold": [
+   0.3591482305224785,
+   0.17762045606730378
+  ],
+  "dissenter_f1": 0.09333333333333334,
+  "pairs_irrelevant_mean_abs_shift_model_vs_gold": [
+   0.37142857142857144,
+   0.22857142857142856
+  ],
+  "pairs_relevant_direction_agreement": 0.7692307692307693,
+  "pairs_relevant_moved_when_gold_moved": 0.8269230769230769
+ },
+ {
+  "name": "gemma31B_merged_t1000",
+  "rows": 2080,
+  "valid": 0.99375,
+  "truncated": 0.0,
+  "panel_train_domains": {
+   "n": 1120,
+   "exact": 0.7723214285714286,
+   "within1": 0.9223214285714286,
+   "sign": 0.9142857142857143,
+   "mae": 0.31339285714285714
+  },
+  "panel_heldout": {
+   "n": 700,
+   "exact": 0.7314285714285714,
+   "within1": 0.8757142857142857,
+   "sign": 0.8714285714285714,
+   "mae": 0.4257142857142857
+  },
+  "kantmodern": {
+   "n": 260,
+   "exact": 0.7923076923076923,
+   "within1": 0.9230769230769231,
+   "sign": 0.9153846153846154,
+   "mae": 0.2923076923076923
+  },
+  "per_seat_sign": {
+   "Kant": 0.9076923076923077,
+   "Mill": 0.9038461538461539,
+   "Aristotle": 0.9038461538461539,
+   "Rawls": 0.8884615384615384,
+   "Hegel": 0.8846153846153846,
+   "Spinoza": 0.8884615384615384,
+   "Aquinas": 0.9076923076923077,
+   "KantModern": 0.9153846153846154
+  },
+  "seat_order_agreement": 0.25271739130434784,
+  "panel_label_agreement": 0.8038461538461539,
+  "spread_model_vs_gold": [
+   0.28183566833875484,
+   0.17762045606730378
+  ],
+  "dissenter_f1": 0.08633093525179857,
+  "pairs_irrelevant_mean_abs_shift_model_vs_gold": [
+   0.37142857142857144,
+   0.22857142857142856
+  ],
+  "pairs_relevant_direction_agreement": 0.8557692307692307,
+  "pairs_relevant_moved_when_gold_moved": 0.8846153846153846
  }
 ]

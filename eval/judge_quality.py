@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "distill"))
 import common as C, panel as P, sft_format as F, seat_prompts as V
 from score import clean
 OUT = os.path.join(C.ROOT, "results", "judge_quality.jsonl")
-SRC = {"gold_opus5": None, "student_sonnet": "gen/merged_t1000.jsonl", "student_flash": "gen/flash_merged_t1000.jsonl", "prompted_instruct": "gen/instruct_full.jsonl", "student_q8b": "gen/q8B_merged_t1000.jsonl", "student_q14b": "gen/q14B_merged_t1000.jsonl", "student_mistral24b": "gen/mistral24B_merged_t1000.jsonl", "student_gemma31b": "gen/gemma31B_merged_t1000.jsonl"}
+SRC = {"gold_opus5": None, "student_sonnet": "gen/merged_t1000.jsonl", "student_flash": "gen/flash_merged_t1000.jsonl", "prompted_instruct": "gen/instruct_full.jsonl", "student_q8b": "gen/q8B_merged_t1000.jsonl", "student_q14b": "gen/q14B_merged_t1000.jsonl", "student_mistral24b": "gen/mistral24B_merged_t1000.jsonl", "student_gemma31b": "gen/gemma31B_merged_t1000.jsonl", "student_gemmae4b": "gen/gemmaE4B_merged_t1000.jsonl", "student_gemma12b": "gen/gemma12B_merged_t1000.jsonl"}
 NAME = {"Kant": "Immanuel Kant", "Mill": "John Stuart Mill", "Aristotle": "Aristotle", "Rawls": "John Rawls", "Hegel": "G. W. F. Hegel", "Spinoza": "Baruch Spinoza", "Aquinas": "Thomas Aquinas"}
 RUBRIC = """You are an expert in moral philosophy grading one analysis of a concrete case, written as if by {name}. Grade it strictly and independently; do not compare it with any other answer.
 Score each criterion from 1 (poor) to 5 (excellent):
