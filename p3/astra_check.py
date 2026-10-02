@@ -58,7 +58,11 @@ def judge(k, target):
     return fails
 def pack():
     cases = {c["id"]: c for c in C.jsonl_read(os.path.join(D, "cases.jsonl"))}; T = load_targets(); K = load_checks()
-    todo = [cid for cid in T if cid in cases and cid not in K]; existing = [int(m.group(1)) for f in glob.glob(os.path.join(AD, "todo_check_*.md")) if (m := re.search(r"todo_check_(\d+)\.md", f))]
+    inflight = set()   # targets already in an open check packet (its checks file not yet written) are not re-packed
+    for f in glob.glob(os.path.join(AD, "todo_check_*.md")):
+        n = re.search(r"todo_check_(\d+)\.md", f).group(1)
+        if not os.path.exists(os.path.join(AD, f"checks_{n}.jsonl")): inflight |= set(re.findall(r"^## id: (\S+)", open(f).read(), re.M))
+    todo = [cid for cid in T if cid in cases and cid not in K and cid not in inflight]; existing = [int(m.group(1)) for f in glob.glob(os.path.join(AD, "todo_check_*.md")) if (m := re.search(r"todo_check_(\d+)\.md", f))]
     n0 = max(existing, default=0) + 1
     for n, i in enumerate(range(0, len(todo), 12), n0):
         out = os.path.relpath(os.path.join(AD, f"checks_{n:02d}.jsonl"), C.ROOT); parts = [CHECK_HEAD.format(n=n, out=out)]
